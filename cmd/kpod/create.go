@@ -264,10 +264,11 @@ func parseCreateOpts(c *cli.Context, runtime *libpod.Runtime) (*createConfig, er
 		return &createConfig{}, errors.Wrapf(err, "unable to process labels")
 	}
 	// ENVIRONMENT VARIABLES
-	env, err := getAllEnvironmentVariables(c.StringSlice("env-file"), c.StringSlice("env"))
+	env, err := readKVStrings(c.StringSlice("env-file"), c.StringSlice("env"))
 	if err != nil {
 		return &createConfig{}, errors.Wrapf(err, "unable to process environment variables")
 	}
+	env = append(defaultEnvVariables, env...)
 
 	sysctl, err := convertStringSliceToMap(c.StringSlice("sysctl"), "=")
 	if err != nil {

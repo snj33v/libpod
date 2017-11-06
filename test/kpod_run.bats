@@ -56,3 +56,23 @@ ALPINE="docker.io/library/alpine:latest"
     [ "$status" -eq 0 ]
 
 }
+
+@test "run environment test" {
+
+#    run bash -c "${KPOD_BINARY} ${KPOD_OPTIONS} run ${ALPINE} sh -c printenv | grep HOSTNAME"
+#    echo "$output"
+#    [ "$status" -eq 0 ]
+
+    run bash -c "FOO=BAR ${KPOD_BINARY} ${KPOD_OPTIONS} run -t -i -env FOO ${ALPINE} sh -c printenv | grep FOO"
+    echo "$output"
+    [ "$status" -eq 0 ]
+
+    run bash -c "${KPOD_BINARY} ${KPOD_OPTIONS} run -t -i -env FOO=BAR ${ALPINE} sh -c printenv | grep FOO"
+    echo "$output"
+    [ "$status" -eq 0 ]
+
+    run bash -c "${KPOD_BINARY} ${KPOD_OPTIONS} run -t -i -env BAR ${ALPINE} sh -c printenv | grep BAR"
+    echo "$output"
+    [ "$status" -ne 0 ]
+
+}

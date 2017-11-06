@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/docker/docker/daemon/caps"
@@ -52,6 +53,9 @@ func createConfigToOCISpec(config *createConfig) (*spec.Spec, error) {
 	}
 	g.SetRootReadonly(config.readOnlyRootfs)
 	g.SetHostname(config.hostname)
+	if config.hostname != "" {
+		g.AddProcessEnv("HOSTNAME", config.hostname)
+	}
 
 	for _, sysctl := range config.sysctl {
 		s := strings.SplitN(sysctl, "=", 2)
@@ -75,6 +79,7 @@ func createConfigToOCISpec(config *createConfig) (*spec.Spec, error) {
 		g.SetLinuxResourcesMemorySwappiness(config.resources.memorySwapiness)
 	}
 	g.SetLinuxResourcesMemoryDisableOOMKiller(config.resources.disableOomKiller)
+	g.SetProcessOOMScoreAdj(config.resources.oomScoreAdj)
 
 	// RESOURCES - CPU
 
@@ -124,6 +129,22 @@ func createConfigToOCISpec(config *createConfig) (*spec.Spec, error) {
 		g.AddTmpfsMount(spliti[0], options)
 	}
 
+	for _, i := range config.env {
+		var name, val string
+		spliti := strings.SplitN(i, "=", 2)
+		name = spliti[0]
+		if len(spliti) > 1 {
+			val = spliti[1]
+		} else {
+			var exists bool
+			if val, exists = os.LookupEnv(name); !exists {
+				return nil, errors.Errorf("environment variable %q does not exist", name)
+			}
+
+		}
+		g.AddProcessEnv(name, val)
+	}
+
 	configSpec := g.Spec()
 
 	if config.seccompProfilePath != "" && config.seccompProfilePath != "unconfined" {
@@ -138,8 +159,6 @@ func createConfigToOCISpec(config *createConfig) (*spec.Spec, error) {
 		configSpec.Linux.Seccomp = &seccompConfig
 	}
 
-	configSpec.Process.Env = config.env
-
 	// BIND MOUNTS
 	configSpec.Mounts = append(configSpec.Mounts, config.GetVolumeMounts()...)
 
@@ -149,11 +168,6 @@ func createConfigToOCISpec(config *createConfig) (*spec.Spec, error) {
 	}
 
 	/*
-				// Rlimits []PosixRlimit // Where does this come from
-				// Type string
-				// Hard uint64
-				// Limit uint64
-				OOMScoreAdj: &config.resources.oomScoreAdj,
 			},
 			Hooks: &configSpec.Hooks{},
 			//Annotations
