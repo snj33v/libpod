@@ -8,6 +8,7 @@ import (
 
 	"github.com/docker/docker/daemon/caps"
 	"github.com/docker/docker/pkg/mount"
+	"github.com/docker/go-units"
 	spec "github.com/opencontainers/runtime-spec/specs-go"
 	"github.com/opencontainers/runtime-tools/generate"
 	"github.com/pkg/errors"
@@ -16,6 +17,22 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 )
+
+func addRlimits(config *createConfig, g *generate.Generator) error {
+	var (
+		ul  *units.Ulimit
+		err error
+	)
+
+	for _, u := range config.resources.ulimit {
+		if ul, err = units.ParseUlimit(u); err != nil {
+			return errors.Errorf("ulimit option %q requires name=SOFT:HARD, failed to be parsed", u)
+		}
+
+		g.AddProcessRlimits("RLIMIT_"+strings.ToUpper(ul.Name), uint64(ul.Soft), uint64(ul.Hard))
+	}
+	return nil
+}
 
 func setupCapabilities(config *createConfig, configSpec *spec.Spec) error {
 	var err error
@@ -145,6 +162,10 @@ func createConfigToOCISpec(config *createConfig) (*spec.Spec, error) {
 		g.AddProcessEnv(name, val)
 	}
 
+	if err := addRlimits(config, &g); err != nil {
+		return nil, err
+	}
+
 	configSpec := g.Spec()
 
 	if config.seccompProfilePath != "" && config.seccompProfilePath != "unconfined" {
@@ -168,7 +189,6 @@ func createConfigToOCISpec(config *createConfig) (*spec.Spec, error) {
 	}
 
 	/*
-			},
 			Hooks: &configSpec.Hooks{},
 			//Annotations
 				Resources: &configSpec.LinuxResources{
