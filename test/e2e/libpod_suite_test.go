@@ -228,8 +228,8 @@ func (s *PodmanSession) IsJSONOutputValid() bool {
 
 // InspectContainerToJSON takes the session output of an inspect
 // container and returns json
-func (s *PodmanSession) InspectContainerToJSON() inspect.ContainerData {
-	var i inspect.ContainerData
+func (s *PodmanSession) InspectContainerToJSON() []inspect.ContainerData {
+	var i []inspect.ContainerData
 	err := json.Unmarshal(s.Out.Contents(), &i)
 	Expect(err).To(BeNil())
 	return i
@@ -237,8 +237,8 @@ func (s *PodmanSession) InspectContainerToJSON() inspect.ContainerData {
 
 // InspectImageJSON takes the session output of an inspect
 // image and returns json
-func (s *PodmanSession) InspectImageJSON() inspect.ImageData {
-	var i inspect.ImageData
+func (s *PodmanSession) InspectImageJSON() []inspect.ImageData {
+	var i []inspect.ImageData
 	err := json.Unmarshal(s.Out.Contents(), &i)
 	Expect(err).To(BeNil())
 	return i
@@ -459,4 +459,24 @@ func (p *PodmanTest) BuildImage(dockerfile, imageName string) {
 	session := p.Podman([]string{"build", "-t", imageName, "--file", dockerfilePath, p.TempDir})
 	session.Wait(120)
 	Expect(session.ExitCode()).To(Equal(0))
+}
+
+//GetHostDistribution returns the dist in string format. If the
+//distribution cannot be determined, an empty string will be returned.
+func (p *PodmanTest) GetHostDistribution() string {
+	content, err := ioutil.ReadFile("/etc/os-release")
+	if err != nil {
+		return ""
+	}
+	for _, line := range content {
+		if strings.HasPrefix(fmt.Sprintf("%s", line), "ID") {
+			fields := strings.Split(fmt.Sprintf("%s", line), "=")
+			if len(fields) < 2 {
+				return ""
+			}
+			return strings.Trim(fields[1], "\"")
+
+		}
+	}
+	return ""
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/containers/storage/pkg/reexec"
 	"github.com/pkg/errors"
+	"github.com/projectatomic/libpod/version"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -14,8 +15,7 @@ import (
 // This is populated by the Makefile from the VERSION file
 // in the repository
 var (
-	podmanVersion = ""
-	exitCode      = 125
+	exitCode = 125
 )
 
 func main() {
@@ -30,11 +30,7 @@ func main() {
 	app.Name = "podman"
 	app.Usage = "manage pods and images"
 
-	var v string
-	if podmanVersion != "" {
-		v = podmanVersion
-	}
-	app.Version = v
+	app.Version = version.Version
 
 	app.Commands = []cli.Command{
 		attachCommand,
@@ -150,6 +146,11 @@ func main() {
 			Name:  "storage-opt",
 			Usage: "used to pass an option to the storage driver",
 		},
+	}
+	if _, err := os.Stat("/etc/containers/registries.conf"); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Warn("unable to find /etc/containers/registries.conf. some podman (image shortnames) commands may be limited")
+		}
 	}
 	if err := app.Run(os.Args); err != nil {
 		if debug {
