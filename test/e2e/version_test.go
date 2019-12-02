@@ -78,7 +78,7 @@ var _ = Describe("Podman version", func() {
 
 	It("podman version --format GO template", func() {
 		SkipIfRemote()
-		session := podmanTest.Podman([]string{"version", "--format", "{{ .Version }}"})
+		session := podmanTest.Podman([]string{"version", "--format", "{{ .Client.Version }}"})
 		session.WaitWithDefaultTimeout()
 		Expect(session.ExitCode()).To(Equal(0))
 	})
