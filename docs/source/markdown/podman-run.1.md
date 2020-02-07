@@ -925,8 +925,6 @@ container.
 You can add **:ro** or **:rw** option to mount a volume in read-only or
 read-write mode, respectively. By default, the volumes are mounted read-write.
 
-  `Labeling Volume Mounts`
-
 Labeling systems like SELinux require that proper labels are placed on volume
 content mounted into a container. Without a label, the security system might
 prevent the processes running inside the container from using the content. By
@@ -940,38 +938,34 @@ content label. Shared volume labels allow all containers to read/write content.
 The **Z** option tells Podman to label the content with a private unshared label.
 Only the current container can use a private volume.
 
-  `Overlay Volume Mounts`
-
-   The `:O` flag tells Podman to mount the directory from the host as a
-temporary storage using the `overlay file system`. The container processes
+The **:O** flag tells Podman to mount the directory from the host as a
+temporary storage using the **overlay file system**. The container processes
 can modify content within the mountpoint which is stored in the
 container storage in a separate directory.  In overlay terms the source
 directory will be the lower, and the container storage directory will be the
 upper. Modifications to the mount point are destroyed when the container
 finishes executing, similar to a tmpfs mount point being unmounted.
 
-  Subsequent executions of the container will see the original source directory
+Subsequent executions of the container will see the original source directory
 content, any changes from previous container executions no longer exists.
 
-  One use case of the overlay mount is sharing the package cache from the
+One use case of the overlay mount is sharing the package cache from the
 host into the container to allow speeding up builds.
 
   Note:
 
-     - The `O` flag conflicts with the `Z` and `z` flags.
+     - The **O** flag conflicts with the **Z** and **z** flags.
 Content mounted into the container is labeled with the private label.
-       On SELinux systems, labels in the source directory must be readable
-by the container label. Usually containers can read/execute `container_share_t`
-and can read/write `container_file_t`. If you can not change the labels on a
+      - On SELinux systems, labels in the source directory must be readable
+by the container label. Usually containers can read/execute **container_share_t**
+and can read/write **container_file_t**. If you can not change the labels on a
 source volume, SELinux container separation must be disabled for the container
 to work.
      - The source directory mounted into the container with an overlay mount
 should not be modified, it can cause unexpected failures.  It is recommended
 that you do not modify the directory until the container finishes running.
 
-  `Mounts propagation`
-
-By default bind mounted volumes are `private`. That means any mounts done
+By default bind mounted volumes are **private**. That means any mounts done
 inside container will not be visible on host and vice versa. One can change
 this behavior by specifying a volume mount propagation property. Making a
 volume shared mounts done under that volume inside container will be
