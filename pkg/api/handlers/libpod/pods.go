@@ -179,7 +179,7 @@ func PodStop(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO we need to implement a pod.State/Status in libpod internal so libpod api
-	// users dont have to run through all containers.
+	// users don't have to run through all containers.
 	podContainers, err := pod.AllContainers()
 	if err != nil {
 		utils.Error(w, "Something went wrong", http.StatusInternalServerError, err)
@@ -226,7 +226,7 @@ func PodStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO we need to implement a pod.State/Status in libpod internal so libpod api
-	// users dont have to run through all containers.
+	// users don't have to run through all containers.
 	podContainers, err := pod.AllContainers()
 	if err != nil {
 		utils.Error(w, "Something went wrong", http.StatusInternalServerError, err)

@@ -58,10 +58,13 @@ each of stdin, stdout, and stderr.
 
 **--authfile**[=*path*]
 
-Path of the authentication file. Default is ${XDG\_RUNTIME\_DIR}/containers/auth.json (Not available for remote commands)
+Path of the authentication file.
+Default: ${XDG\_RUNTIME\_DIR}/containers/auth.json
+(Not available for remote commands)
 
-Note: You can also override the default path of the authentication file by setting the REGISTRY\_AUTH\_FILE
-environment variable. `export REGISTRY_AUTH_FILE=path`
+Note: You can also override the default path of the authentication file by
+setting the REGISTRY\_AUTH\_FILE environment variable.
+`export REGISTRY_AUTH_FILE=path`
 
 **--blkio-weight**=*weight*
 
@@ -882,6 +885,7 @@ create one.
 
 * [`rw`|`ro`]
 * [`z`|`Z`]
+* [`O`]
 * [`[r]shared`|`[r]slave`|`[r]private`]
 * [`[r]bind`]
 * [`noexec`|`exec`]
@@ -901,15 +905,19 @@ named volume. Host paths are allowed to be absolute or relative; relative paths
 are resolved relative to the directory Podman is run in. Any source that does
 not begin with a `.` or `/` it will be treated as the name of a named volume.
 If a volume with that name does not exist, it will be created. Volumes created
-with names are not anonymous and are not removed by `--rm` and
-`podman rm --volumes`.
+with names are not anonymous. They are not removed by the `--rm` option and the
+`podman rm --volumes` command.
 
 You can specify multiple  **-v** options to mount one or more volumes into a
 container.
 
+  `Write Protected Volume Mounts`
+
 You can add `:ro` or `:rw` suffix to a volume to mount it  read-only or
 read-write mode, respectively. By default, the volumes are mounted read-write.
 See examples.
+
+  `Labeling Volume Mounts`
 
 Labeling systems like SELinux require that proper labels are placed on volume
 content mounted into a container. Without a label, the security system might
@@ -923,6 +931,37 @@ share the volume content. As a result, Podman labels the content with a shared
 content label. Shared volume labels allow all containers to read/write content.
 The `Z` option tells Podman to label the content with a private unshared label.
 Only the current container can use a private volume.
+
+  `Overlay Volume Mounts`
+
+   The `:O` flag tells Podman to mount the directory from the host as a
+temporary storage using the `overlay file system`. The container processes
+can modify content within the mountpoint which is stored in the
+container storage in a separate directory.  In overlay terms the source
+directory will be the lower, and the container storage directory will be the
+upper. Modifications to the mount point are destroyed when the container
+finishes executing, similar to a tmpfs mount point being unmounted.
+
+  Subsequent executions of the container will see the original source directory
+content, any changes from previous container executions no longer exists.
+
+  One use case of the overlay mount is sharing the package cache from the
+host into the container to allow speeding up builds.
+
+  Note:
+
+     - The `O` flag conflicts with the `Z` and `z` flags.
+Content mounted into the container is labeled with the private label.
+       On SELinux systems, labels in the source directory must be readable
+by the container label. Usually containers can read/execute `container_share_t`
+and can read/write `container_file_t`. If you can not change the labels on a
+source volume, SELinux container separation must be disabled for the container
+to work.
+     - The source directory mounted into the container with an overlay mount
+should not be modified, it can cause unexpected failures.  It is recommended
+that you do not modify the directory until the container finishes running.
+
+  `Mounts propagation`
 
 By default bind mounted volumes are `private`. That means any mounts done
 inside container will not be visible on host and vice versa. One can change
@@ -1188,6 +1227,8 @@ considered as an orphan and wiped if you execute `podman volume prune`:
 $ podman run -v /var/db:/data1 -i -t fedora bash
 
 $ podman run -v data:/data2 -i -t fedora bash
+
+$ podman run -v /var/cache/dnf:/var/cache/dnf:O -ti fedora dnf -y update
 ```
 
 Using --mount flags, To mount a host directory as a container folder, specify
@@ -1344,7 +1385,9 @@ b
 **/etc/subgid**
 
 ## SEE ALSO
-subgid(5), subuid(5), libpod.conf(5), systemd.unit(5), setsebool(8), slirp4netns(1), fuse-overlayfs(1)
+podman(1), podman-ps(1), podman-attach(1), podman-pod(1), podman-port(1),
+podman-kill(1), podman-stop(1), subgid(5), subuid(5), libpod.conf(5),
+systemd.unit(5), setsebool(8), slirp4netns(1), fuse-overlayfs(1)
 
 ## HISTORY
 September 2018, updated by Kunal Kushwaha <kushwaha_kunal_v7@lab.ntt.co.jp>
@@ -1352,8 +1395,6 @@ September 2018, updated by Kunal Kushwaha <kushwaha_kunal_v7@lab.ntt.co.jp>
 October 2017, converted from Docker documentation to Podman by Dan Walsh for Podman <dwalsh@redhat.com>
 
 November 2015, updated by Sally O'Malley <somalley@redhat.com>
-
-July 2014, updated by Sven Dowideit <SvenDowideit@home.org.au>
 
 June 2014, updated by Sven Dowideit <SvenDowideit@home.org.au>
 
