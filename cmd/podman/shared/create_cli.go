@@ -19,6 +19,12 @@ func GetAllLabels(labelFile, inputLabels []string) (map[string]string, error) {
 	if labelErr != nil {
 		return labels, errors.Wrapf(labelErr, "unable to process labels from --label and label-file")
 	}
+	for _, label := range inputLabels {
+		// add labels that don't have values
+		if _, ok := labels[label]; !ok {
+			labels[label] = ""
+		}
+	}
 	return labels, nil
 }
 

@@ -304,4 +304,27 @@ var _ = Describe("Podman create", func() {
 		session.WaitWithDefaultTimeout()
 		Expect(session).To(Not(Equal(0)))
 	})
+
+	It("podman create label no value", func() {
+		name := "test101"
+		create := podmanTest.Podman([]string{"create", "--label", "foobar", "--name", name, ALPINE})
+		create.WaitWithDefaultTimeout()
+		Expect(create.ExitCode()).To(Equal(0))
+
+		ctrJSON := podmanTest.InspectContainer(name)
+		_, ok := ctrJSON[0].Config.Labels["foobar"]
+		Expect(ok).To(BeTrue())
+	})
+
+	It("podman create label with value", func() {
+		name := "test101"
+		create := podmanTest.Podman([]string{"create", "--label", "foo=bar", "--name", name, ALPINE})
+		create.WaitWithDefaultTimeout()
+		Expect(create.ExitCode()).To(Equal(0))
+
+		ctrJSON := podmanTest.InspectContainer(name)
+		val, ok := ctrJSON[0].Config.Labels["foo"]
+		Expect(ok).To(BeTrue())
+		Expect(val).To(ContainSubstring("bar"))
+	})
 })
