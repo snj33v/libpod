@@ -38,7 +38,7 @@ type LogOptions struct {
 	Timestamps bool
 	Multi      bool
 	WaitGroup  *sync.WaitGroup
-	UseNames   bool
+	UseName    bool
 }
 
 // LogLine describes the information for each line of a log
@@ -166,7 +166,7 @@ func getTailLog(path string, tail int) ([]*LogLine, error) {
 func (l *LogLine) String(options *LogOptions) string {
 	var out string
 	if options.Multi {
-		if options.UseNames {
+		if options.UseName {
 			cname := l.CName
 			out = fmt.Sprintf("%s ", cname)
 		} else {
