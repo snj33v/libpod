@@ -550,7 +550,7 @@ func (s *APIServer) registerContainersHandlers(r *mux.Router) error {
 		libpod endpoints
 	*/
 
-	// swagger:operation POST /containers/create libpod libpodContainerCreate
+	// swagger:operation POST /libpod/containers/create libpod libpodCreateContainer
 	// ---
 	//   summary: Create a container
 	//   tags:
@@ -615,21 +615,21 @@ func (s *APIServer) registerContainersHandlers(r *mux.Router) error {
 	//    name: filters
 	//    type: string
 	//    description: |
-	//       Returns a list of containers.
-	//        - ancestor=(<image-name>[:<tag>], <image id>, or <image@digest>)
-	//        - before=(<container id> or <container name>)
-	//        - expose=(<port>[/<proto>]|<startport-endport>/[<proto>])
-	//        - exited=<int> containers with exit code of <int>
-	//        - health=(starting|healthy|unhealthy|none)
-	//        - id=<ID> a container's ID
-	//        - is-task=(true|false)
-	//        - label=key or label="key=value" of a container label
-	//        - name=<name> a container's name
-	//        - network=(<network id> or <network name>)
-	//        - publish=(<port>[/<proto>]|<startport-endport>/[<proto>])
-	//        - since=(<container id> or <container name>)
-	//        - status=(created|restarting|running|removing|paused|exited|dead)
-	//        - volume=(<volume name> or <mount point destination>)
+	//        A JSON encoded value of the filters (a `map[string][]string`) to process on the containers list. Available filters:
+	//        - `ancestor`=(`<image-name>[:<tag>]`, `<image id>`, or `<image@digest>`)
+	//        - `before`=(`<container id>` or `<container name>`)
+	//        - `expose`=(`<port>[/<proto>]` or `<startport-endport>/[<proto>]`)
+	//        - `exited=<int>` containers with exit code of `<int>`
+	//        - `health`=(`starting`, `healthy`, `unhealthy` or `none`)
+	//        - `id=<ID>` a container's ID
+	//        - `is-task`=(`true` or `false`)
+	//        - `label`=(`key` or `"key=value"`) of an container label
+	//        - `name=<name>` a container's name
+	//        - `network`=(`<network id>` or `<network name>`)
+	//        - `publish`=(`<port>[/<proto>]` or `<startport-endport>/[<proto>]`)
+	//        - `since`=(`<container id>` or `<container name>`)
+	//        - `status`=(`created`, `restarting`, `running`, `removing`, `paused`, `exited` or `dead`)
+	//        - `volume`=(`<volume name>` or `<mount point destination>`)
 	// produces:
 	// - application/json
 	// responses:
@@ -662,7 +662,7 @@ func (s *APIServer) registerContainersHandlers(r *mux.Router) error {
 	//   500:
 	//     $ref: "#/responses/InternalError"
 	r.HandleFunc(VersionedPath("/libpod/containers/prune"), s.APIHandler(handlers.PruneContainers)).Methods(http.MethodPost)
-	// swagger:operation GET /libpod/containers/showmounted libpod showMountedContainers
+	// swagger:operation GET /libpod/containers/showmounted libpod libpodShowMountedContainers
 	// ---
 	// tags:
 	//  - containers
@@ -769,7 +769,7 @@ func (s *APIServer) registerContainersHandlers(r *mux.Router) error {
 	//   500:
 	//     $ref: "#/responses/InternalError"
 	r.HandleFunc(VersionedPath("/libpod/containers/{name}/kill"), s.APIHandler(libpod.KillContainer)).Methods(http.MethodPost)
-	// swagger:operation POST /libpod/containers/{name}/mount libpod mountContainer
+	// swagger:operation POST /libpod/containers/{name}/mount libpod libpodMountContainer
 	// ---
 	// tags:
 	//  - containers
@@ -1047,7 +1047,7 @@ func (s *APIServer) registerContainersHandlers(r *mux.Router) error {
 	//   500:
 	//     $ref: "#/responses/InternalError"
 	r.HandleFunc(VersionedPath("/libpod/containers/{name}/wait"), s.APIHandler(libpod.WaitContainer)).Methods(http.MethodPost)
-	// swagger:operation GET /libpod/containers/{name}/exists libpod containerExists
+	// swagger:operation GET /libpod/containers/{name}/exists libpod libpodContainerExists
 	// ---
 	// tags:
 	//  - containers
@@ -1096,7 +1096,7 @@ func (s *APIServer) registerContainersHandlers(r *mux.Router) error {
 	//   500:
 	//     $ref: "#/responses/InternalError"
 	r.HandleFunc(VersionedPath("/libpod/containers/{name}/stop"), s.APIHandler(handlers.StopContainer)).Methods(http.MethodPost)
-	// swagger:operation POST /libpod/containers/{name}/attach libpod libpodAttach
+	// swagger:operation POST /libpod/containers/{name}/attach libpod libpodAttachContainer
 	// ---
 	// tags:
 	//   - containers
@@ -1151,7 +1151,7 @@ func (s *APIServer) registerContainersHandlers(r *mux.Router) error {
 	//   500:
 	//     $ref: "#/responses/InternalError"
 	r.HandleFunc(VersionedPath("/libpod/containers/{name}/attach"), s.APIHandler(handlers.AttachContainer)).Methods(http.MethodPost)
-	// swagger:operation POST /libpod/containers/{name}/resize libpod libpodResize
+	// swagger:operation POST /libpod/containers/{name}/resize libpod libpodResizeContainer
 	// ---
 	// tags:
 	//  - containers
