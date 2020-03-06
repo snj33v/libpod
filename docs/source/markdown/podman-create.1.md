@@ -1102,6 +1102,8 @@ b
 **/etc/subuid**
 **/etc/subgid**
 
+NOTE: Use the environment variable `TMPDIR` to change the temporary storage location of downloaded container images. Podman defaults to use `/var/tmp`.
+
 ## SEE ALSO
 podman(1), podman-ps(1), podman-attach(1), podman-pod(1), podman-port(1),
 podman-kill(1), podman-stop(1), subgid(5), subuid(5), libpod.conf(5),
