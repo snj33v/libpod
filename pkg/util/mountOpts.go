@@ -108,6 +108,7 @@ func ProcessOptions(options []string, isTmpfs bool, sourcePath string) ([]string
 			if foundZ {
 				return nil, errors.Wrapf(ErrDupeMntOption, "only one of 'z', 'Z' or 'O' can be used")
 			}
+			foundZ = true
 		default:
 			return nil, errors.Wrapf(ErrBadMntOption, "unknown mount option %q", opt)
 		}
