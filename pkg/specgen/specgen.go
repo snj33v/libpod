@@ -44,7 +44,6 @@ type ContainerBasicConfig struct {
 	Command []string `json:"command,omitempty"`
 	// Env is a set of environment variables that will be set in the
 	// container.
-	// Optional.
 	Env map[string]string `json:"env,omitempty"`
 	// Terminal is whether the container will create a PTY.
 	Terminal bool `json:"terminal,omitempty"`
