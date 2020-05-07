@@ -2,6 +2,7 @@ package generate
 
 import (
 	"context"
+	"os"
 
 	"github.com/containers/image/v5/manifest"
 	"github.com/containers/libpod/libpod"
@@ -69,6 +70,23 @@ func CompleteSpec(ctx context.Context, r *libpod.Runtime, s *specgen.SpecGenerat
 	envs, err := envLib.ParseSlice(imageEnvs)
 	if err != nil {
 		return errors.Wrap(err, "Env fields from image failed to parse")
+	}
+
+	if s.HTTPProxy {
+		for _, envSpec := range []string{
+			"http_proxy",
+			"HTTP_PROXY",
+			"https_proxy",
+			"HTTPS_PROXY",
+			"ftp_proxy",
+			"FTP_PROXY",
+			"no_proxy",
+			"NO_PROXY",
+		} {
+			if v, ok := os.LookupEnv(envSpec); ok {
+				envs[envSpec] = v
+			}
+		}
 	}
 	s.Env = envLib.Join(envLib.Join(defaultEnvs, envs), s.Env)
 

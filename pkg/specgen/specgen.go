@@ -45,6 +45,9 @@ type ContainerBasicConfig struct {
 	// Env is a set of environment variables that will be set in the
 	// container.
 	Env map[string]string `json:"env,omitempty"`
+	// HTTPProxy tells the system whether or not to add the HTTP Proxy
+	// environment variables to the container.
+	HTTPProxy bool `json:"httpproxy,omitempty"`
 	// Terminal is whether the container will create a PTY.
 	Terminal bool `json:"terminal,omitempty"`
 	// Stdin is whether the container will keep its STDIN open.

@@ -308,23 +308,8 @@ func FillOutSpecGen(s *specgen.SpecGenerator, c *ContainerCLIOpts, args []string
 
 	if c.EnvHost {
 		env = envLib.Join(env, osEnv)
-	} else if c.HTTPProxy {
-		for _, envSpec := range []string{
-			"http_proxy",
-			"HTTP_PROXY",
-			"https_proxy",
-			"HTTPS_PROXY",
-			"ftp_proxy",
-			"FTP_PROXY",
-			"no_proxy",
-			"NO_PROXY",
-		} {
-			if v, ok := osEnv[envSpec]; ok {
-				env[envSpec] = v
-			}
-		}
 	}
-
+	s.HTTPProxy = c.HTTPProxy
 	// env-file overrides any previous variables
 	for _, f := range c.EnvFile {
 		fileEnv, err := envLib.ParseFile(f)
