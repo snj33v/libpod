@@ -189,7 +189,7 @@ podman: bin/podman
 
 .PHONY: bin/podman-remote
 bin/podman-remote: .gopathok $(SOURCES) go.mod go.sum $(PODMAN_VARLINK_DEPENDENCIES) ## Build with podman on remote environment
-	$(GO_BUILD) $(BUILDFLAGS) -gcflags '$(GCFLAGS)' -asmflags '$(ASMFLAGS)' -ldflags '$(LDFLAGS_PODMAN)' -tags "!ABISupport $(BUILDTAGS) remoteclient" -o $@ $(PROJECT)/cmd/podman
+	$(GO_BUILD) $(BUILDFLAGS) -gcflags '$(GCFLAGS)' -asmflags '$(ASMFLAGS)' -ldflags '$(LDFLAGS_PODMAN)' -tags "remoteclient" -o $@ $(PROJECT)/cmd/podman
 
 .PHONY: podman-remote
 podman-remote: bin/podman-remote
