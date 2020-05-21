@@ -68,7 +68,13 @@ func (ir *ImageEngine) History(ctx context.Context, nameOrId string, opts entiti
 
 func (ir *ImageEngine) Prune(ctx context.Context, opts entities.ImagePruneOptions) (*entities.ImagePruneReport, error) {
 
-	results, err := images.Prune(ir.ClientCxt, &opts.All, opts.Filters)
+	filters := make(map[string][]string, len(opts.Filter))
+	for _, filter := range opts.Filter {
+		f := strings.Split(filter, "=")
+		filters[f[0]] = f[1:]
+	}
+
+	results, err := images.Prune(ir.ClientCxt, &opts.All, filters)
 	if err != nil {
 		return nil, err
 	}
